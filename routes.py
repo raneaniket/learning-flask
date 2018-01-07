@@ -23,6 +23,9 @@ def about():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    if 'email' in session:
+        return redirect(url_for('home'))
+
     form = SignupForm()
 
     if request.method == "POST":
@@ -32,7 +35,9 @@ def signup():
             newuser = User(form.first_name.data, form.last_name.data, form.email.data, form.password.data)
             db.session.add(newuser)
             db.session.commit()
-            return 'Success!'
+
+            session['email'] = newuser.email
+            return redirect(url_for('home'))
 
     elif request.method == "GET":
         return render_template('signup.html', form=form)
@@ -40,6 +45,9 @@ def signup():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if 'email' in session:
+        return redirect(url_for('home'))
+
     form = LoginForm()
 
     if request.method == "POST":
@@ -68,6 +76,9 @@ def logout():
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+
     return render_template("home.html")
 
 
